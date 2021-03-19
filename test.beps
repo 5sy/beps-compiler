@@ -1,0 +1,2 @@
+_start:
+	ADDI $s0, $zero, 100
