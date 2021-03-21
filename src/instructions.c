@@ -32,19 +32,19 @@ uint32_t instruction_ADDI(char *line) {
 	uint16_t value = 0;
 	uint32_t output = 0;
 
-	tmp = strtok(NULL, "\t, ");
+	tmp = strtok(NULL, "\n\t, ");
 	if (tmp == NULL) {
 		return 0;
 	}
 	outputReg = resolve_register(tmp);
 
-	tmp = strtok(NULL, "\t, ");
+	tmp = strtok(NULL, "\n\t, ");
 	if (tmp == NULL) {
 		return 0;
 	}
 	inputReg = resolve_register(tmp);
 
-	tmp = strtok(NULL, "\t, ");
+	tmp = strtok(NULL, "\n\t, ");
 	if (tmp == NULL) {
 		return 0;
 	}
@@ -57,5 +57,24 @@ uint32_t instruction_ADDI(char *line) {
 	output |= ((outputReg & 0x1f) << 6);	// Output (5 bits)
 	output |= ((inputReg & 0x1f) << 11);	// Input  (5 bits)
 	output |= ((value & 0xffff) << 16);		// Value  (16 bits)
+	return output;
+}
+
+uint32_t instruction_SYSCALL(char *line) {
+	char *tmp = NULL;
+	uint8_t execreg;
+	uint32_t output = 0;
+
+	tmp = strtok(NULL, "\n\t, ");
+	if (tmp == NULL) {
+		return 0;
+	}
+	execreg = resolve_register(tmp);
+
+	printf("SYSCALL %hhu\n", execreg);
+
+	// Assemble
+	output |= 0x3f;							// Opcode (6 bits)
+	output |= ((execreg & 0x1f) << 6);		// Execution register (5 bits)
 	return output;
 }

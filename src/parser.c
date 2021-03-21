@@ -29,16 +29,28 @@ uint32_t make_instruction(char *line) {
 	uint32_t value = 0;
 	char *ins = strtok(line, "\t ");
 	uint64_t hash_value = hash_s((unsigned char*)ins);
+	int success = 1;
+
 	switch (hash_value) {
 		// ADDI
 		case 0x17C81DE77:
 			value = instruction_ADDI(ins);
 			break;
+		// SYSCALL
+		case 0xD0ACCE803DC0:
+			value = instruction_SYSCALL(ins);
+			break;
+		// Ignored
+		case 0x2B5E0:	// Comment (;)
+		case 0x2B5AF:	// newline
+			success = 0;
+			break;
 		default:
 			fprintf(stderr, "ERROR: Unknown instruction '%s' (hash 0x%llX)\n", ins, hash_value);
 			break;
 	}
-	instructions += 1;
+	// +1 if success, else dont incr
+	instructions += (success == 1);
 	return value;
 }
 
@@ -84,8 +96,11 @@ int parser_Compile(char *filePath, char *outPath) {
 		} else {
 			// Compile instruction
 			cur_ins = make_instruction(buffer);
-			fwrite(&cur_ins, 1, sizeof(uint32_t), outFile);
-			printf("0x%X\n", cur_ins);
+			// Make sure valid instruction
+			if (cur_ins != 0) {
+				fwrite(&cur_ins, 1, sizeof(uint32_t), outFile);
+				printf("0x%X\n", cur_ins);
+			}
 		}
 
 		// Free buffer

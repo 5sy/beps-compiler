@@ -1,2 +1,6 @@
 _start:
-	ADDI $s0, $zero, 100
+	; Set s0 to 1 and tell machine to execute syscall 1
+	ADDI $s0, $zero, 1
+	; Set argument 1 to 1
+	ADDI $a0, $zero, 1
+	SYSCALL $s0
